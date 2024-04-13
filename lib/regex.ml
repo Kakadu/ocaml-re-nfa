@@ -14,7 +14,7 @@ type charset = C.t
 module Letter =
 struct
   type t = C.t * state
-  let compare (_,x) (_,y) = Pervasives.compare x y
+  let compare (_,x) (_,y) = Stdlib.compare x y
 end
 
 (** Sets of single letters *)
@@ -30,7 +30,7 @@ struct
   module Pair = struct
     type t = Letter.t * Letter.t
     let compare ((_,w),(_,x)) ((_,y),(_,z)) =
-      Pervasives.compare (w,x) (y,z)
+      Stdlib.compare (w,x) (y,z)
   end
   module S = Set.Make(Pair)
   let (<+>) = S.union
@@ -102,7 +102,7 @@ let add_transition i1 c2 i2 sm =
     | ss -> ss
   in StateMap.add i1 (add_transition2 c2 i2 tm) sm
 
-let transition_map_of_factor_set fs = 
+let transition_map_of_factor_set fs =
   Letter2Set.S.fold
     (fun ((_,i1), (c2,i2)) sm -> add_transition i1 c2 i2 sm)
     fs
@@ -131,7 +131,7 @@ let fresh_state =
 
 let start_state = fresh_state ()
 
-let rec annotate : 'a. 'a regex -> ('a * int32) regex = function 
+let rec annotate : 'a. 'a regex -> ('a * int32) regex = function
   | Empty  -> Empty
   | Eps    -> Eps
   | Char c -> let p = (c, fresh_state ()) in Char p
@@ -253,7 +253,7 @@ struct
       | c1 :: '-' :: c2 :: s -> (Some (Range (c1, c2)), s)
       | c :: s -> (Some (Char c), s)
 
-    let parse_elements s = 
+    let parse_elements s =
       let rec loop elements s =
         match parse_element s with
         | None, s -> (List.rev elements, s)
@@ -275,7 +275,7 @@ struct
             | '-', co -> (co, {r with hyphen = true})
             | '^', co -> (co, {r with caret = true})
             | ']', co -> (co, {r with lbracket = true})
-            | c, None -> (Some (c,c), r) 
+            | c, None -> (Some (c,c), r)
             | c, Some (c1,c2) when adjacent c c2 -> (Some (c1, c), r)
             | c, Some (c1,c2) -> (Some (c,c),
                                   { r with ranges = (c1,c2) :: r.ranges }))
@@ -326,7 +326,7 @@ struct
 
   type t =
     | Opt : t -> t
-    | Chr : char -> t 
+    | Chr : char -> t
     | Alt : t * t -> t
     | Seq : t * t -> t
     | Star : t -> t
@@ -371,7 +371,7 @@ struct
     | h :: rest -> Some (Chr h, rest)
 
   (** rsuffixed ::= ratom
-                    atom *  
+                    atom *
                     atom +
                     atom ?         *)
  and re_parse_suffixed : char list -> (t * char list) option =
@@ -414,4 +414,4 @@ let unparse_charset s =
   let pos = Parse.Bracket.unparse ~complement:false s
   and neg = Parse.Bracket.unparse ~complement:true (C.diff any_ s) in
   if String.length pos <= String.length neg then pos else neg
-              
+
