@@ -1,3 +1,4 @@
 (library
  (name re_nfa)
- (public_name re_nfa))
+ (public_name re_nfa)
+ (modules Dfa Nfa Nfa_dot Regex))
